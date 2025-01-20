@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Sidebar from '../../components/Sidebar/Sidebar';
 import { PieChart, Pie, Cell, Tooltip, Legend, Text } from 'recharts';
 import { LuCalendarCheck2, LuCalendarX2 } from "react-icons/lu";
