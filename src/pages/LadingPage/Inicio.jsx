@@ -50,13 +50,13 @@ function Inicio() {
             <div className="pb-80 pt-16 sm:pb-40 sm:pt-24 lg:pb-48 lg:pt-40">
             <div className="relative mx-auto max-w-7xl px-4 sm:static sm:px-6 lg:px-8">
                 <div className="sm:max-w-lg">
-                <div className="">
-                    <h1 className="text-4xl font-bold tracking-tight text-slate-700 sm:text-5xl">
+                <div className="" style={{width: '120%'}}>
+                    <h1 className="text-4xl font-bold tracking-tight text-slate-700 sm:text-4xl">
                         ToNaLista!, o gerenciador de convites para {displayedText}
                         <span className="blinking-cursor text-slate-700">|</span>
                     </h1>
                 </div>
-                <p className="mt-4 text-xl text-slate-900 bg-sky-100 p-2 border rounded border-sky-200">
+                <p className="mt-4 text-1xl text-slate-900 bg-sky-100 p-2 border rounded border-sky-200">
                 Sistema desenvolvido especialmente para você que deseja organizar e gerenciar a lista de convidados para o seu evento de 
                 forma prática e eficiente.
                 </p>

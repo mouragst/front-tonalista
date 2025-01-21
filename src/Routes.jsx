@@ -14,6 +14,9 @@ import EsqueceuSenha from './pages/Login/EsqueceuSenha';
 // Paginas referente ao sistema (usuário já logado)
 import Eventos from './pages/Menu/Eventos';
 import Perfil from './pages/Menu/Perfil';
+import CadastroFornecedor from './pages/Cadastro/CadastroFornecedor';
+import CadastroFuncionario from './pages/Cadastro/CadastroFuncionario';
+import CadastroUsuario from './pages/Cadastro/CadastroUsuario';
 
 function AppRoutes() {
     return (
@@ -33,6 +36,10 @@ function AppRoutes() {
                 {/* Rotas dentro do sistema (já logado) */}
                 <Route path='/eventos' element={<Eventos />} />
                 <Route path='/perfil' element={<Perfil />} />
+                
+                <Route path='/cadastro/fornecedor' element={<CadastroFornecedor />} />
+                <Route path='/cadastro/funcionario' element={<CadastroFuncionario />} />
+                <Route path='/cadastro/usuario' element={<CadastroUsuario />} />
 
             </Routes>
         </Router>
