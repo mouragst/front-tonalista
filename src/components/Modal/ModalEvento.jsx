@@ -1,13 +1,11 @@
-import  { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
-import { MdOutlineEmojiEvents } from "react-icons/md";
+import { MdOutlineEmojiEvents, MdOutlineHourglassDisabled  } from "react-icons/md";
 import { LuCalendarCheck2, LuCalendar, LuHourglass  } from "react-icons/lu";
 import { GrLocation, GrMapLocation, GrImage } from "react-icons/gr";
 import { FaCalendarAlt } from 'react-icons/fa';
-import { RiFileExcel2Line } from "react-icons/ri";
-import { IoPersonAddOutline } from "react-icons/io5";
-import { FaLink } from "react-icons/fa6";
-import { GiPayMoney, GiReceiveMoney, GiTakeMyMoney } from "react-icons/gi";
+import { apiUrl } from '../../config';
+import axios from 'axios';
 
 const ModalEvento = ({ isModalOpen, onClose }) => {
     const [activeTab, setActiveTab] = useState(1);
@@ -15,9 +13,12 @@ const ModalEvento = ({ isModalOpen, onClose }) => {
     const [confirmDate, setConfirmDate] = useState('');
     const [error, setError] = useState('');
     const [errorDate, setErrorDate] = useState('');
-    const [budget, setBudget] = useState(50000);
-    const [spent, setSpent] = useState(10000);
-    const [percentualGasto, setPercentualGasto] = useState(`${(spent / budget) * 100}`);
+    const [name, setName] = useState('');
+    const [startTime, setStartTime] = useState('');
+    const [endTime, setEndTime] = useState('');
+    const [location, setLocation] = useState('');
+    const [address, setAddress] = useState('');
+    const [description, setDescription] = useState('');
 
     const handleConfirmDateEvent = (e) => {
         const selectedDate = e.target.value;
@@ -53,10 +54,33 @@ const ModalEvento = ({ isModalOpen, onClose }) => {
         const selectedDateObj = new Date(selectedDate);
         const eventDateObj = new Date(eventDate);
     
-        if (selectedDateObj < eventDateObj) {
-            setError('A data de confirmação do evento não pode ser menor que a data do evento');
+        if (selectedDateObj > eventDateObj) {
+            setError('A data de confirmação do evento não pode ser maior que a data do evento');
         } else {
             setError('');
+        }
+    };
+
+    const handleSubmit = async () => {
+        const eventData = {
+            name,
+            description,
+            date: eventDate,
+            startTime,
+            endTime,
+            confirmTillDate: confirmDate,
+            location,
+            address,
+            status: 'active',
+            company: { id: 1 }
+        };
+
+        try {
+            const response = await axios.post(`${apiUrl}/api/event`, eventData);
+            console.log('Evento criado com sucesso:', response.data);
+            onClose();
+        } catch (error) {
+            console.error('Erro ao criar evento:', error);
         }
     };
 
@@ -76,25 +100,6 @@ const ModalEvento = ({ isModalOpen, onClose }) => {
           >
             Dados do Evento
           </button>
-          <button
-            className={`px-4 py-2 ${activeTab === 2 ? 'border-b-2 rounded-md border-blue-500 text-black bg-gray-100' : 'hover:bg-gray-100 hover:border-b-2 hover:rounded-md hover:border-blue-500 text-black'}`}
-            onClick={() => setActiveTab(2)}
-          >
-            Convidados
-          </button>
-          <button
-            className={`px-4 py-2 ${activeTab === 3 ? 'border-b-2 rounded-md border-blue-500 text-black bg-gray-100' : 'hover:bg-gray-100 hover:border-b-2 hover:rounded-md hover:border-blue-500 text-black'}`}
-            onClick={() => setActiveTab(3)}
-            >
-                Orçamentos
-          </button>
-
-          <button
-            className={`absolute top-2 right-12 px-2 py-1 bg-green-500 hover:bg-green-700 text-slate-100 rounded m-2`}
-            onClick={() => console.log(percentualGasto)}
-            >
-                Imprimir
-          </button>
         </div>
         <div className="p-4 min-h-[77vh]">
           {activeTab === 1 && (
@@ -104,9 +109,25 @@ const ModalEvento = ({ isModalOpen, onClose }) => {
                 <MdOutlineEmojiEvents className="mr-2 text-gray-700" />
                 Nome do Evento
               </label>
-              <input type="text" className="w-full px-3 py-2 border rounded border-gray-300" />
+              <input
+                type="text"
+                className="w-full px-3 py-2 border rounded border-gray-300"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
             </div>
-            <div className="mb-4 grid grid-cols-3 gap-4">
+            <div className="mb-4">
+              <label className="block text-gray-700 flex items-center">
+                <MdOutlineEmojiEvents className="mr-2 text-gray-700" />
+                Descrição do Evento
+              </label>
+              <textarea
+                className="w-full px-3 py-2 border rounded border-gray-300"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
+            <div className="mb-4 grid grid-cols-4 gap-4">
               <div>
                 <label className="block text-gray-700 flex items-center">
                   <LuCalendar className="mr-2 text-gray-700" />
@@ -124,9 +145,26 @@ const ModalEvento = ({ isModalOpen, onClose }) => {
               <div>
                 <label className="block text-gray-700 flex items-center">
                   <LuHourglass className="mr-2 text-gray-700" />
-                  Hora
+                  Hora de Início
                 </label>
-                <input type="time" className="w-full px-3 py-2 border rounded border-gray-300" />
+                <input
+                  type="time"
+                  className="w-full px-3 py-2 border rounded border-gray-300"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 flex items-center">
+                  <MdOutlineHourglassDisabled className="mr-2 text-gray-700" />
+                  Hora de Término
+                </label>
+                <input
+                  type="time"
+                  className="w-full px-3 py-2 border rounded border-gray-300"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                />
               </div>
               <div>
                 <label className="block text-gray-700 flex items-center">
@@ -149,14 +187,24 @@ const ModalEvento = ({ isModalOpen, onClose }) => {
                 <GrLocation className="mr-2 text-gray-700" />
                 Local do Evento
               </label>
-              <input type="text" className="w-full px-3 py-2 border rounded border-gray-300" />
+              <input
+                type="text"
+                className="w-full px-3 py-2 border rounded border-gray-300"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+              />
             </div>
             <div className="mb-4">
               <label className="block text-gray-700 flex items-center">
                 <GrMapLocation className="mr-2 text-gray-700" />
                 Endereço
               </label>
-              <input type="text" className="w-full px-3 py-2 border rounded border-gray-300" />
+              <input
+                type="text"
+                className="w-full px-3 py-2 border rounded border-gray-300"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
             </div>
             <div className="mb-4">
               <label className="block text-gray-700 flex items-center">
@@ -164,7 +212,7 @@ const ModalEvento = ({ isModalOpen, onClose }) => {
                 Imagem (opcional)
               </label>
               <div className="flex items-center justify-center w-full">
-                <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-80 border-2 border-gray-50 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-200 dark:bg-gray-50 hover:bg-gray-100 dark:border-gray-500 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+                <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-60 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-100 hover:bg-gray-200 ">
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <FaCalendarAlt className="w-8 h-8 mb-4 text-gray-700 dark:text-gray-700" />
                     <p className="mb-2 text-sm text-gray-500 dark:text-gray-700"><span className="font-semibold">Clique para adicionar</span> ou arraste e solte</p>
@@ -174,128 +222,16 @@ const ModalEvento = ({ isModalOpen, onClose }) => {
                 </label>
               </div>
             </div>
+            <div className="flex justify-end">
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                onClick={handleSubmit}
+              >
+                Salvar Evento
+              </button>
+            </div>
           </div>
           )}
-          {activeTab === 2 && (
-            <div>
-              <div className="mb-4 grid grid-cols-3 gap-4">
-                <button className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded flex items-center justify-center">
-                    <RiFileExcel2Line size={20} className="mr-2" />
-                    Importar Excel
-                </button>
-                <button className="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded flex items-center justify-center">
-                    <IoPersonAddOutline  size={20} className="mr-2" />
-                    Adicionar Manualmente
-                </button>
-                <button className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded flex items-center justify-center">
-                    <FaLink  size={20} className="mr-2" />
-                    Link de confirmação
-                </button>
-              </div>
-              <table className="table-auto w-full bg-white border-collapse table-fixed">
-                <thead>
-                    <tr>
-                    <th className="py-2 px-4 border-b border-gray-200">Nome</th>
-                    <th className="py-2 px-4 border-b border-gray-200">Parentesco</th>
-                    <th className="py-2 px-4 border-b border-gray-200">Email</th>
-                    <th className="py-2 px-4 border-b border-gray-200">Telefone</th>
-                    <th className="py-2 px-4 border-b border-gray-200">Status</th>
-                    <th className="py-2 px-4 border-b border-gray-200">Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                    <td className="py-2 px-4 border-b border-gray-200">Convidado 1</td>
-                    <td className="py-2 px-4 border-b border-gray-200">Amigo</td>
-                    <td className="py-2 px-4 border-b border-gray-200">email@example.com</td>
-                    <td className="py-2 px-4 border-b border-gray-200">+55 19 999999999</td>
-                    <td className="py-2 px-4 border-b border-gray-200">Confirmado</td>
-                    <td className="py-2 px-4 border-b border-gray-200">
-                        <button className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded">Editar</button>
-                        <button className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded">Excluir</button>
-                    </td>
-                    </tr>
-                    {/* Adicione mais linhas conforme necessário */}
-                </tbody>
-                </table>
-            </div>
-          )}
-          {activeTab === 3 && (
-                <>
-                <div className="grid grid-cols-3 gap-4">
-                <div className="bg-sky-50 border border-sky-200 p-4 rounded-lg shadow-lg">
-                    <div className='flex items-center'>
-                        <GiPayMoney size={25} />
-                        <h3 className="text-xl font-bold ml-4">Budget</h3>
-                    </div>
-                    <p className="text-gray-700 text-xl">R$ 50.000,00</p>
-                </div>
-                <div className="bg-red-50 border border-red-200 p-4 rounded-lg shadow-lg">
-                    <div className='flex items-center'>
-                        <GiReceiveMoney size={25} />
-                        <h3 className="text-xl font-bold ml-4">Gasto</h3>
-                    </div>
-                    <p className="text-gray-700 text-xl">R$ 25.000,00</p>
-                </div>
-                <div className="bg-green-50 border border-green-200 p-4 rounded-lg shadow-lg">
-                    <div className='flex items-center'>
-                        <GiTakeMyMoney size={25} />
-                        <h3 className="text-xl font-bold ml-4">Disponível</h3>
-                    </div>
-                    <p className="text-gray-700 text-xl">R$ 25.000,00</p>
-                </div>
-            </div>
-
-            <div className="mt-7">
-                <div className="w-full bg-gray-200 rounded-full h-2 mb-4 relative">
-                    <div className={`bg-${percentualGasto < 30 ? 'green' : percentualGasto < 60 ? 'blue' : 'red'}-500 h-2 rounded-full`} style={{ width: `${percentualGasto}%` }}></div>
-                    {/* <span className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-full text-sm font-medium text-gray-700">{percentualGasto}%</span> */}
-                </div>
-                <button className="bg-blue-500 hover:bg-blue-700 text-slate-100 font-bold py-2 px-4 rounded">
-                    Adicionar Despesa
-                </button>
-            </div>
-
-            <table className="min-w-full divide-y divide-gray-200 mt-4">
-                <thead className="bg-gray-50">
-                    <tr>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Descrição
-                        </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Valor
-                        </th>
-                    </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                    <tr>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            Vestido Noiva
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            R$ 10.000,00
-                        </td>
-                    </tr>
-                    <tr>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            Terno Noivo
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            R$ 5.000,00
-                        </td>
-                    </tr>
-                    <tr>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            Igreja
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            R$ 10.000,00
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            </>
-            )}
         </div>
       </div>
     </div>
